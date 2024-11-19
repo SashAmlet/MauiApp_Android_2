@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="10" Spacing="10">
+            <!-- Введення даних студента -->
+            <Label Text="Add a new student:" FontSize="Medium" />
+            <Entry Placeholder="Full Name" x:Name="FullNameEntry" />
+            <Entry Placeholder="Subject 1 Grade" x:Name="Subject1GradeEntry" Keyboard="Numeric" />
+            <Entry Placeholder="Subject 2 Grade" x:Name="Subject2GradeEntry" Keyboard="Numeric" />
+            <Entry Placeholder="Address" x:Name="AddressEntry" />
+            <Button Text="Add Student" Clicked="OnAddStudentClicked" />
+
+            <!-- Список студентів -->
+            <Label Text="All Students:" FontSize="Medium" />
+            <CollectionView x:Name="StudentsCollectionView" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <VerticalStackLayout Padding="5" Spacing="5">
+                            <Label Text="{Binding Id}" FontAttributes="Bold" />
+                            <Label Text="{Binding FullName}"/>
+                            <Label Text="{Binding Address}" />
+                            <Label Text="{Binding AverageGrade}" />
+                            <Label Text="-----------------------"/>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Фільтрування -->
+            <Label Text="Filter students by average grade:" FontSize="Medium" />
+            <Entry Placeholder="Threshold (e.g., 60)" x:Name="ThresholdEntry" Keyboard="Numeric" />
+            <Button Text="Apply Filter" Clicked="OnApplyFilterClicked" />
+            <Label Text="Filtered Students:" FontSize="Medium" />
+            <CollectionView x:Name="FilteredStudentsCollectionView" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <VerticalStackLayout Padding="5" Spacing="5">
+                            <Label Text="{Binding FullName}" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Відсоток студентів -->
+            <Label x:Name="PercentageLabel" Text="Selected Percentage: 0%" FontSize="Medium" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+
+    <!-- Menu with instructions -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Address book" Clicked="OnAddressBookClicked" />
+        <ToolbarItem Text="About the developer" Clicked="OnInstructionsClicked" />
+    </ContentPage.ToolbarItems>
+
+</ContentPage>
