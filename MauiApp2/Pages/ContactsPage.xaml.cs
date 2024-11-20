@@ -9,27 +9,81 @@ public partial class ContactsPage : ContentPage
 {
     private List<UContact> _contacts; // Оригінальний список контактів
     private List<UContact> _filteredContacts; // Відфільтрований список
+    private readonly IDatabaseService<UContact> _databaseService;
 
     public ContactsPage()
     {
         InitializeComponent();
-        LoadContacts();
+        SQLitePCL.Batteries_V2.Init();
+        _databaseService = new DatabaseService<UContact>("Contacts");
+        LoadContactsAsync();
     }
 
-    private void LoadContacts()
+    private async void LoadContactsAsync()
     {
-        _contacts = new List<UContact>
+
+        try
         {
-            new UContact { Name = "Ivan Ivanov", Phone = "+380501234567", Address = "Київ, вул. Хрещатик, 1" },
-            new UContact { Name = "Maria Petrovna", Phone = "+380671234567", Address = "Одеса, вул. Дерибасівська, 10" }
-        };
+            _contacts = await _databaseService.GetAllAsync();
 
-        _filteredContacts = new List<UContact>(_contacts);
-        ContactsCollectionView.ItemsSource = _filteredContacts;
+            _filteredContacts = new List<UContact>(_contacts);
+            ContactsCollectionView.ItemsSource = _filteredContacts;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
     }
-
-    private void OnFilterTextChanged(object sender, TextChangedEventArgs e)
+    private async void AddContact(UContact contact)
     {
+        try
+        {
+            _contacts.Add(contact);
+
+            _filteredContacts = new List<UContact>(_contacts);
+            ContactsCollectionView.ItemsSource = _contacts;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+    private async void OnAddContactClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(FullNameEntry.Text) ||
+                string.IsNullOrWhiteSpace(PhoneNumberEntry.Text) ||
+                string.IsNullOrWhiteSpace(AddressEntry.Text))
+            {
+                await DisplayAlert("Error", "All fields are required.", "OK");
+                return;
+            }
+
+            var contact = new UContact
+            {
+                Name = FullNameEntry.Text,
+                Phone = PhoneNumberEntry.Text,
+                Address = AddressEntry.Text
+            };
+
+            await _databaseService.SaveAsync(contact);
+            AddContact(contact);
+            FilterContacts();
+
+            // Очистити поля вводу
+            FullNameEntry.Text = string.Empty;
+            PhoneNumberEntry.Text = string.Empty;
+            AddressEntry.Text = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+    private async void FilterContacts()
+    {
+
         var filterText = FilterEntry.Text?.ToLower() ?? string.Empty;
 
         _filteredContacts = string.IsNullOrWhiteSpace(filterText)
@@ -37,6 +91,12 @@ public partial class ContactsPage : ContentPage
             : _contacts.Where(c => c.Name.ToLower().Contains(filterText)).ToList();
 
         ContactsCollectionView.ItemsSource = _filteredContacts;
+
+    }
+
+    private void OnFilterTextChanged(object sender, TextChangedEventArgs e)
+    {
+        FilterContacts();
     }
 
     private void OnContactButtonClicked(object sender, EventArgs e)
@@ -86,7 +146,7 @@ public partial class ContactsPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Помилка", "Не вдалося побудувати маршрут.", "Ок");
+            await DisplayAlert("Error", "Failed to build route.", "Ок");
         }
     }
 
@@ -95,12 +155,12 @@ public partial class ContactsPage : ContentPage
         string startAddress = AdditionalAddressEntry.Text;
         if (string.IsNullOrEmpty(startAddress))
         {
-            await DisplayAlert("Помилка", "Введіть початкову адресу.", "Ок");
+            await DisplayAlert("Error", "Enter the starting address.", "Ок");
             return;
         }
 
-        var startLocation = await GetCoordinatesFromAddress(startAddress);
-        var destinationLocation = GeoService.GetCoordinatesFromAddress(contact.Address);
+        var startLocation = await GeoService.GetCoordinatesFromAddress(startAddress);
+        var destinationLocation = await GeoService.GetCoordinatesFromAddress(contact.Address);
 
         if (startLocation != null && destinationLocation != null)
         {
@@ -108,13 +168,7 @@ public partial class ContactsPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Помилка", "Не вдалося отримати координати.", "Ок");
+            await DisplayAlert("Error", "Failed to get coordinates.", "Ок");
         }
-    }
-    private async Task<Location> GetCoordinatesFromAddress(string address)
-    {
-        // Замініть цей метод на реальну логіку для отримання координат через геосервіс (наприклад, через Google Maps API)
-        // Для демонстрації повертається фіксована позиція
-        return new Location(50.45316305193355, 30.51392281079863); // Повертає координати для Ванкувера
     }
 }

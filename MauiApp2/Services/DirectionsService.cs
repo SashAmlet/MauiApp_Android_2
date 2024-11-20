@@ -21,7 +21,7 @@ public class DirectionsService
 
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Помилка HTTP: {response.StatusCode}");
+            Console.WriteLine($"HTTP error: {response.StatusCode}");
             return null;
         }
 
@@ -35,7 +35,7 @@ public class DirectionsService
             // Перевіряємо статус відповіді
             if (root.TryGetProperty("status", out var status) && status.GetString() != "OK")
             {
-                Console.WriteLine($"Помилка: {status.GetString()}");
+                Console.WriteLine($"Error: {status.GetString()}");
                 return null;
             }
 
@@ -52,7 +52,7 @@ public class DirectionsService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Помилка парсингу JSON: {ex.Message}");
+            Console.WriteLine($"JSON parsing error: {ex.Message}");
             return null;
         }
 
@@ -63,7 +63,7 @@ public class DirectionsService
     {
         if (string.IsNullOrWhiteSpace(encodedPoints))
         {
-            Console.WriteLine("Помилка: порожня або недійсна полілінія.");
+            Console.WriteLine("Error: empty or invalid polyline.");
             return null;
         }
 
@@ -89,7 +89,7 @@ public class DirectionsService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Помилка декодування полілінії: {ex.Message}");
+            Console.WriteLine($"Polyline decoding error: {ex.Message}");
             return null;
         }
 

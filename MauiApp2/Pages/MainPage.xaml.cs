@@ -5,13 +5,15 @@ namespace MauiApp2.Pages;
 
 public partial class MainPage : ContentPage
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IDatabaseService<Student> _databaseService;
+    private List<Student> _students; // Оригінальний список контактів
+    private List<Student> _filteredStudents; // Відфільтрований список
 
     public MainPage()
     {
         InitializeComponent();
         SQLitePCL.Batteries_V2.Init();
-        _databaseService = new DatabaseService();
+        _databaseService = new DatabaseService<Student>("Students");
         LoadStudentsAsync();
     }
 
@@ -19,14 +21,50 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            var students = await _databaseService.GetAllStudentsAsync();
-            StudentsCollectionView.ItemsSource = students;
+            _students = await _databaseService.GetAllAsync();
+
+            _filteredStudents = new List<Student>(_students);
+            StudentsCollectionView.ItemsSource = _students;
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", ex.Message, "OK");
         }
     }
+    private async void AddStudent(Student student)
+    {
+        try
+        {
+            _students.Add(student);
+
+            _filteredStudents = new List<Student>(_students);
+            FilterStudents();
+            StudentsCollectionView.ItemsSource = _students;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+    private async void FilterStudents()
+    {
+        if (!string.IsNullOrWhiteSpace(ThresholdEntry.Text))
+        {
+            var threshold = double.Parse(ThresholdEntry.Text);
+
+            _filteredStudents = _students.Where(c => c.AverageGrade > threshold).ToList();
+            FilteredStudentsCollectionView.ItemsSource = _filteredStudents;
+
+            var percentage = _filteredStudents.Count > 0
+                ? (_filteredStudents.Count / (double)(await _databaseService.GetAllAsync()).Count) * 100
+                : 0;
+
+            PercentageLabel.Text = $"Selected Percentage: {percentage:0.00}%";
+
+        }
+
+    }
+
 
     private async void OnAddStudentClicked(object sender, EventArgs e)
     {
@@ -49,8 +87,8 @@ public partial class MainPage : ContentPage
                 Address = AddressEntry.Text
             };
 
-            await _databaseService.SaveStudentAsync(student);
-            LoadStudentsAsync();
+            await _databaseService.SaveAsync(student);
+            AddStudent(student);
 
             // Очистити поля вводу
             FullNameEntry.Text = string.Empty;
@@ -74,15 +112,7 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            var threshold = double.Parse(ThresholdEntry.Text);
-            var filteredStudents = await _databaseService.GetFilteredStudentsAsync(threshold);
-            FilteredStudentsCollectionView.ItemsSource = filteredStudents;
-
-            var percentage = filteredStudents.Count > 0
-                ? (filteredStudents.Count / (double)(await _databaseService.GetAllStudentsAsync()).Count) * 100
-                : 0;
-
-            PercentageLabel.Text = $"Selected Percentage: {percentage:0.00}%";
+            FilterStudents();
         }
         catch (Exception ex)
         {

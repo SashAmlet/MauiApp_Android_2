@@ -1,4 +1,5 @@
-﻿using MauiApp2.Services;
+﻿using MauiApp2.Models;
+using MauiApp2.Services;
 using Microsoft.Extensions.Logging;
 
 namespace MauiApp2
@@ -17,7 +18,8 @@ namespace MauiApp2
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<DatabaseService>();
+            builder.Services.AddSingleton<DatabaseService<Student>>();
+            builder.Services.AddSingleton<DatabaseService<UContact>>();
 
 #if DEBUG
             builder.Logging.AddDebug();

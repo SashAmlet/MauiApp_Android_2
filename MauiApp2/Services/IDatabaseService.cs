@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace MauiApp2.Services;
 
-public interface IDatabaseService
+public interface IDatabaseService<T>
 {
-    public Task<int> SaveStudentAsync(Student student);
-    public Task<List<Student>> GetAllStudentsAsync();
-    public Task<List<Student>> GetFilteredStudentsAsync(double threshold);
+    Task<int> SaveAsync(T entity);
+    Task<List<T>> GetAllAsync();
 }
+

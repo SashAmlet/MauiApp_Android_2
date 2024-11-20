@@ -4,39 +4,48 @@
              xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
              x:Class="MauiApp2.Pages.ContactsPage"
              Title="Контакти">
-    <VerticalStackLayout Padding="10">
-        <!-- Фільтр -->
-        <Entry Placeholder="Фільтрувати за іменем" 
-               x:Name="FilterEntry" 
-               TextChanged="OnFilterTextChanged"/>
+    <ScrollView>
+        <VerticalStackLayout Padding="10">
+            <Label Text="Додати новий контакт:" FontSize="Medium" />
+            <Entry Placeholder="Повне ім'я" x:Name="FullNameEntry" />
+            <Entry Placeholder="Номер телефону" x:Name="PhoneNumberEntry" Keyboard="Numeric" />
+            <Entry Placeholder="Адреса" x:Name="AddressEntry" />
+            <Button Text="Додати" Clicked="OnAddContactClicked" />
 
-        <!-- Список контактів -->
-        <CollectionView x:Name="ContactsCollectionView" SelectionMode="Single">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame Margin="5" Padding="10" BorderColor="LightGray">
-                        <VerticalStackLayout>
-                            <Label Text="{Binding Name}" FontAttributes="Bold" />
-                            <Label Text="{Binding PhoneNumber}" />
-                            <Label Text="{Binding Address}" FontSize="Small" />
-                            <!-- Додаємо кнопку до елемента -->
-                            <Button Text="Пошук" Clicked="OnContactButtonClicked"/>
-                        </VerticalStackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            <!-- Фільтр -->
+            <Entry Placeholder="Фільтрувати за іменем" 
+                   x:Name="FilterEntry" 
+                   TextChanged="OnFilterTextChanged"/>
+
+            <!-- Список контактів -->
+            <CollectionView x:Name="ContactsCollectionView" SelectionMode="Single">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="5" Padding="10" BorderColor="LightGray">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                <Label Text="{Binding Phone}" />
+                                <Label Text="{Binding Address}" FontSize="Small" />
+                            
+                                <Button Text="Пошук" Clicked="OnContactButtonClicked"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
 
-        <!-- Додаткове поле для введення адреси -->
-        <Entry x:Name="AdditionalAddressEntry" 
-               Placeholder="Введіть адресу для маршруту" 
-               VerticalOptions="CenterAndExpand"/>
+            <!-- Додаткове поле для введення адреси -->
+            <Entry x:Name="AdditionalAddressEntry" 
+                   Placeholder="Введіть адресу для маршруту" 
+                   VerticalOptions="CenterAndExpand"/>
 
-        <!-- Карта для показу маршруту -->
-        <maps:Map x:Name="Map" 
-                  IsShowingUser="True" 
-                  HeightRequest="300"/>
 
-    </VerticalStackLayout>
+            <!-- Карта для показу маршруту -->
+            <maps:Map x:Name="Map" 
+                      IsShowingUser="True" 
+                      HeightRequest="300"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
